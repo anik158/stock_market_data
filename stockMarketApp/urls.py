@@ -25,5 +25,10 @@ urlpatterns = [
     re_path(r'^$', RedirectView.as_view(url='/stock-data/', permanent=True)),  # Redirect root to /stock-data/
     path('update-stock-data/', stock_views.update_stock_data, name='update_stock_data'),
     path('delete-stock-data/<int:id>', stock_views.delete_stock_data, name='delete_stock_data'),
+    path('chart-data/<str:trade_code>/', stock_views.chart_data, name='chart_data'),
+    path('trade-codes/', stock_views.trade_codes, name='trade_codes'),
+
 ]
+
+
 

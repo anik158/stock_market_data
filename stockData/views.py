@@ -8,22 +8,6 @@ from datetime import datetime
 from .models import SqlStockData
 
 
-# @csrf_exempt
-# def update_stock_data(request):
-#     if request.method == 'POST':
-#         data = json.loads(request.body)
-#         stock_entry = JsonStockData.objects.get(id=data['id'])
-#         stock_entry.date = data['date']
-#         stock_entry.trade_code = data['trade_code']
-#         stock_entry.high = data['high']  #
-#         stock_entry.low = data['low']    # 
-#         stock_entry.open = data['open']  # 
-#         stock_entry.volume = data['volume']  # 
-#         stock_entry.save()
-#         return JsonResponse({'status': 'success'})
-#     return JsonResponse({'status': 'fail'})
-
-
 
 @csrf_exempt
 def update_stock_data(request):
@@ -33,7 +17,7 @@ def update_stock_data(request):
 
             # Parse and reformat the date
             date_str = data['date']
-            date_obj = datetime.strptime(date_str, '%b. %d, %Y')  # Adjust the format to match your input
+            date_obj = datetime.strptime(date_str, '%b. %d, %Y')  
             formatted_date = date_obj.strftime('%Y-%m-%d')
 
             # Update the database entry
@@ -65,7 +49,7 @@ def update_stock_data(request):
 def stock_data_view(request):
     #data_list = JsonStockData.objects.all()
     data_list = SqlStockData.objects.all()
-    paginator = Paginator(data_list, 25)  # Show 25 entries per page
+    paginator = Paginator(data_list, 200)  # Show 25 entries per page
 
     page_number = request.GET.get('page')
     data = paginator.get_page(page_number)
@@ -87,5 +71,11 @@ def delete_stock_data(request, id):
         print(e)
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
+def chart_data(request, trade_code):
+    data = SqlStockData.objects.filter(trade_code=trade_code).order_by('date').values('date', 'close', 'volume')
+    return JsonResponse(list(data), safe=False)
 
 
+def trade_codes(request):
+    codes = SqlStockData.objects.values_list('trade_code', flat=True).distinct()
+    return JsonResponse(list(codes), safe=False)

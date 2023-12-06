@@ -3,6 +3,7 @@
 <head>
     <title>Stock Data</title>
     <!-- Bootstrap CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 <style>
@@ -100,8 +101,13 @@ table, th, td {
                 {% endif %}
             </span>
         </div>
+
+        
         
         <h1 class="text-center">Stock Market Data</h1>
+        <select id="tradeCodeSelector"></select>
+        <canvas id="myChart"></canvas>
+
         <div class="table-container">
             <table class="table table-striped table-bordered">
                 <thead class="thead-dark">
@@ -144,6 +150,8 @@ table, th, td {
 
     <!-- Bootstrap JS, Popper.js, and jQuery -->
     <script>
+        
+
  // Add event listener for 'edit' icon
 document.querySelectorAll('.edit-icon').forEach(function(icon) {
     icon.onclick = function() {
@@ -172,7 +180,7 @@ document.querySelectorAll('.edit-icon').forEach(function(icon) {
               .then(data => {
                   console.log('Success:', data);
                   if (data.status === 'success') {
-                      row.remove();  // Remove the row from the table on successful deletion
+                      row.remove();  
                   }
               }).catch((error) => {
                   console.error('Error:', error);
@@ -191,7 +199,7 @@ document.querySelectorAll('.edit-icon').forEach(function(icon) {
                         'high': row.cells[2].innerText.trim(),
                         'low': row.cells[3].innerText.trim(),
                         'open': row.cells[4].innerText.trim(),
-                        'close': row.cells[5].innerText.trim(),  // Assuming 'close' is a field
+                        'close': row.cells[5].innerText.trim(),  
                         'volume': row.cells[6].innerText.trim()
                         
                     };
@@ -202,7 +210,7 @@ document.querySelectorAll('.edit-icon').forEach(function(icon) {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRFToken': getCookie('csrftoken')  // CSRF token for Django
+                            'X-CSRFToken': getCookie('csrftoken') 
                         },
                         body: JSON.stringify(data)
                     }).then(response => response.json())
@@ -230,13 +238,95 @@ document.querySelectorAll('.edit-icon').forEach(function(icon) {
             }
             return cookieValue;
         }
+        
+        
+    // Function to update the chart
+    function updateChart(tradeCode) {
+    fetch(`/chart-data/${tradeCode}/`)
+        .then(response => response.json())
+        .then(data => {
+            const ctx = document.getElementById('myChart').getContext('2d');
+            
+            const labels = data.map(item => item.date);
+            const closeData = data.map(item => item.close);
+            const volumeData = data.map(item => item.volume);
+
+            if (window.myChart instanceof Chart) {
+                window.myChart.destroy();
+            }
+
+            window.myChart = new Chart(ctx, {
+                type: 'bar', 
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Close',
+                        data: closeData,
+                        type: 'line',
+                        borderColor: 'rgb(54, 162, 130)',
+                        borderWidth: 2,
+                        fill: false,
+                        yAxisID: 'y-axis-close',
+                    }, {
+                        label: 'Volume',
+                        data: volumeData,
+                        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                        yAxisID: 'y-axis-volume',
+                    }]
+                },
+                options: {
+                    scales: {
+                        'y-axis-close': {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                        },
+                        'y-axis-volume': {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                        }
+                    }
+                }
+            });
+        });
+}
+
+
+    // Populate trade codes in the dropdown
+    fetch('/trade-codes/')
+        .then(response => response.json())
+        .then(codes => {
+            const selector = document.getElementById('tradeCodeSelector');
+            codes.forEach(code => {
+                const option = document.createElement('option');
+                option.value = code;
+                option.textContent = code;
+                selector.appendChild(option);
+            });
+
+            // Update chart when the dropdown value changes
+            selector.addEventListener('change', () => {
+                updateChart(selector.value);
+            });
+
+            // Initialize chart with the first trade code
+            if (codes.length > 0) {
+                updateChart(codes[0]);
+            }
+        });
+
+
     </script>
+    
     
     
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-    <!-- Add Chart.js or other JavaScript libraries here for the chart -->
 </body>
 </html>
