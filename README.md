@@ -26,4 +26,4 @@ This project was an invaluable learning experience that broadened my skill set i
 
 ---
 
-For any further inquiries or contributions to the project, please feel free to contact [Your Name/Contact Information].
+For any further inquiries or contributions to the project, please feel free to contact [https://twitter.com/wanderer168].
