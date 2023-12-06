@@ -1,0 +1,17 @@
+# General
+*.log
+*.pot
+*.pyc
+__pycache__
+db.sqlite3
+.DS_Store
+
+# Environments
+.env
+.venv
+venv/
+ENV/
+
+# IDE Specific
+.idea/
+.vscode/
