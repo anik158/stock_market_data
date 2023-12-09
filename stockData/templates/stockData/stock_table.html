@@ -213,6 +213,49 @@
           });
       }
 
+      function handlePaginationAndRefresh() {
+        document.querySelectorAll(".pagination a").forEach(function (link) {
+          link.addEventListener("click", function (event) {
+            event.preventDefault();
+            fetch(link.getAttribute("href"))
+              .then((response) => response.text())
+              .then((html) => {
+                const container = document.querySelector(".table-container");
+                container.innerHTML = html;
+                populateTradeCodes();
+                updateChart(document.getElementById("tradeCodeSelector").value);
+                reattachEventListeners();
+                handlePaginationAndRefresh(); // Re-apply this function for new pagination links
+              });
+          });
+        });
+      }
+
+      function formatDate(dateStr) {
+        const date = new Date(dateStr);
+        const day = date.getDate();
+        const monthNames = [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ];
+        const monthIndex = date.getMonth();
+        const year = date.getFullYear();
+
+        const formattedDay = day < 10 ? `0${day}` : day;
+
+        return `${monthNames[monthIndex]}. ${formattedDay}, ${year}`;
+      }
+
       document.addEventListener("DOMContentLoaded", function () {
         function refreshChartAndSelector() {
           populateTradeCodes();
@@ -233,15 +276,11 @@
           document.querySelectorAll(".save-btn").forEach(function (button) {
             button.onclick = function () {
               var row = this.closest("tr");
-              if (!row || !row.cells) {
-                console.error("Row or cells not found");
-                return;
-              }
               var id = row.getAttribute("data-id");
 
               var data = {
                 id: id,
-                date: row.cells[0].innerText.trim(),
+                date: formatDate(row.cells[0].innerText.trim()),
                 trade_code: row.cells[1].innerText.trim(),
                 high: row.cells[2].innerText.trim(),
                 low: row.cells[3].innerText.trim(),
@@ -294,35 +333,6 @@
           });
         }
 
-        // Attach event listener for pagination links
-        function handlePagination() {
-          var paginationContainer = document.querySelector(".container");
-          if (paginationContainer) {
-            paginationContainer.addEventListener("click", function (event) {
-              var target = event.target;
-              if (target.tagName === "A" && target.closest(".pagination")) {
-                console.log(
-                  "Pagination link clicked:",
-                  target.getAttribute("href")
-                ); // For debugging
-                event.preventDefault();
-                fetch(target.getAttribute("href"))
-                  .then((response) => response.text())
-                  .then((html) => {
-                    document.querySelector(".table-container").innerHTML = html;
-                    refreshChartAndSelector();
-                    reattachEventListeners();
-                  })
-                  .catch((error) => console.error("Error:", error));
-              }
-            });
-          } else {
-            console.error("Pagination container not found"); // For debugging
-          }
-        }
-
-        document.addEventListener("DOMContentLoaded", handlePagination);
-
         // Initial function calls
         refreshChartAndSelector();
         reattachEventListeners();
@@ -354,15 +364,11 @@
         document.querySelectorAll(".save-btn").forEach(function (button) {
           button.onclick = function () {
             var row = this.closest("tr");
-            if (!row || !row.cells) {
-              console.error("Row or cells not found");
-              return;
-            }
             var id = row.getAttribute("data-id");
 
             var data = {
               id: id,
-              date: row.cells[0].innerText.trim(),
+              date: formatDate(row.cells[0].innerText.trim()),
               trade_code: row.cells[1].innerText.trim(),
               high: row.cells[2].innerText.trim(),
               low: row.cells[3].innerText.trim(),
