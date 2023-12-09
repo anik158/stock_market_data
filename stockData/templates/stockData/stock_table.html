@@ -1,333 +1,495 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <title>Stock Data</title>
-    <!-- Bootstrap CSS -->
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-<style>
-    body {
-    padding: 20px;
-}
-.table-container {
-    margin-top: 20px;
-}
-table {
-    width: 100%;
-    table-layout: fixed;
-}
-th, td {
-    text-align: center;
-}
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
+    <style>
+      body {
+        padding: 20px;
+      }
+      .table-container {
+        margin-top: 20px;
+      }
+      table {
+        width: 100%;
+        table-layout: fixed;
+      }
+      th,
+      td {
+        text-align: center;
+      }
 
-tr:hover {
-    background-color: #f5f5f5;
-}
+      tr:hover {
+        background-color: #f5f5f5;
+      }
 
-.edit-icon:hover {
-    color: red;
-    cursor: pointer;
-}
+      .edit-icon:hover {
+        color: red;
+        cursor: pointer;
+      }
 
-.save-btn {
-    background-color: #4CAF50; /* Green */
-    border: none;
-    color: white;
-    padding: 5px 10px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    border-radius: 5px;
-    margin: 4px 2px;
-    transition-duration: 0.4s;
-    cursor: pointer;
-}
+      .save-btn {
+        background-color: #4caf50; /* Green */
+        border: none;
+        color: white;
+        padding: 5px 10px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        border-radius: 5px;
+        margin: 4px 2px;
+        transition-duration: 0.4s;
+        cursor: pointer;
+      }
 
-.save-btn:hover {
-    background-color: white;
-    color: black;
-    border: 2px solid #4CAF50;
-}
+      .save-btn:hover {
+        background-color: white;
+        color: black;
+        border: 2px solid #4caf50;
+      }
 
-.delete-btn {
-    background-color: #5e0808; /* Green */
-    border: none;
-    color: white;
-    padding: 5px 10px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    border-radius: 5px;
-    font-size: 16px;
-    margin: 4px 2px;
-    transition-duration: 0.4s;
-    cursor: pointer;
-}
+      .delete-btn {
+        background-color: #5e0808; /* Green */
+        border: none;
+        color: white;
+        padding: 5px 10px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        border-radius: 5px;
+        font-size: 16px;
+        margin: 4px 2px;
+        transition-duration: 0.4s;
+        cursor: pointer;
+      }
 
-.delete-btn:hover {
-    background-color: white;
-    color: black;
-    border: 2px solid #5e0808;
-}
+      .delete-btn:hover {
+        background-color: white;
+        color: black;
+        border: 2px solid #5e0808;
+      }
 
-td {
-    padding: 10px;
-}
-table, th, td {
-    border: 1px solid black;
-}
-
-</style>
-
-</head>
-<body>
+      td {
+        padding: 10px;
+      }
+      table,
+      th,
+      td {
+        border: 1px solid black;
+      }
+    </style>
+  </head>
+  <body>
     <div class="container">
-        <div class="pagination">
-            <span class="step-links">
-                {% if data.has_previous %}
-                    <a href="?page=1">&laquo; first</a>
-                    <a href="?page={{ data.previous_page_number }}">previous</a>
-                {% endif %}
-        
-                <span class="current">
-                    Page {{ data.number }} of {{ data.paginator.num_pages }}.
-                </span>
-        
-                {% if data.has_next %}
-                    <a href="?page={{ data.next_page_number }}">next</a>
-                    <a href="?page={{ data.paginator.num_pages }}">last &raquo;</a>
-                {% endif %}
-            </span>
-        </div>
+      <div class="pagination">
+        <span class="step-links">
+          {% if data.has_previous %}
+          <a href="?page=1">&laquo; first</a>
+          <a href="?page={{ data.previous_page_number }}">previous</a>
+          {% endif %}
 
-        
-        
-        <h1 class="text-center">Stock Market Data</h1>
-        <h5>Trade Code</h5>
-        <select id="tradeCodeSelector"></select>
-        <canvas id="myChart"></canvas>
+          <span class="current">
+            Page {{ data.number }} of {{ data.paginator.num_pages }}.
+          </span>
 
-        <div class="table-container">
-            <table class="table table-striped table-bordered">
-                <thead class="thead-dark">
-                    <tr>
-                        <th>Date</th>
-                        <th>Trade Code</th>
-                        <th>High</th>
-                        <th>Low</th>
-                        <th>Open</th>
-                        <th>Close</th>
-                        <th>Volume</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for entry in data %}
-                    <tr data-id="{{ entry.id }}">
-                    
-                    <td contenteditable="true">{{ entry.date }} <i class="fas fa-edit edit-icon"></i></td>
-                    <td contenteditable="true">{{ entry.trade_code }} <i class="fas fa-edit edit-icon"></i></td>
-                    <td contenteditable="true">{{ entry.high }} <i class="fas fa-edit edit-icon"></i></td>
-                    <td contenteditable="true">{{ entry.low }} <i class="fas fa-edit edit-icon"></i></td>
-                    <td contenteditable="true">{{ entry.open }} <i class="fas fa-edit edit-icon"></i></td>
-                    <td contenteditable="true">{{ entry.close }} <i class="fas fa-edit edit-icon"></i></td>
-                    {% load humanize %}
-                    <td contenteditable="true">{{ entry.volume|intcomma }} <i class="fas fa-edit edit-icon"></i></td>
+          {% if data.has_next %}
+          <a href="?page={{ data.next_page_number }}">next</a>
+          <a href="?page={{ data.paginator.num_pages }}">last &raquo;</a>
+          {% endif %}
+        </span>
+      </div>
 
-                    <td>
-                       <span><button class="save-btn">Save</button></span> 
-                        <span></span><button class="delete-btn">Delete</button> 
-                    </td>
-                    </tr>
-                    {% endfor %}
+      <h1 class="text-center">Stock Market Data</h1>
+      <h5>Trade Code</h5>
+      <select id="tradeCodeSelector" aria-label="Trade Code"></select>
+      <canvas id="myChart"></canvas>
 
-                    
-                </tbody>
-            </table>
-        </div>
+      <div class="table-container">
+        <table class="table table-striped table-bordered">
+          <thead class="thead-dark">
+            <tr>
+              <th>Date</th>
+              <th>Trade Code</th>
+              <th>High</th>
+              <th>Low</th>
+              <th>Open</th>
+              <th>Close</th>
+              <th>Volume</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for entry in data %}
+            <tr data-id="{{ entry.id }}">
+              <td contenteditable="true">
+                {{ entry.date }} <i class="fas fa-edit edit-icon"></i>
+              </td>
+              <td contenteditable="true">
+                {{ entry.trade_code }} <i class="fas fa-edit edit-icon"></i>
+              </td>
+              <td contenteditable="true">
+                {{ entry.high }} <i class="fas fa-edit edit-icon"></i>
+              </td>
+              <td contenteditable="true">
+                {{ entry.low }} <i class="fas fa-edit edit-icon"></i>
+              </td>
+              <td contenteditable="true">
+                {{ entry.open }} <i class="fas fa-edit edit-icon"></i>
+              </td>
+              <td contenteditable="true">
+                {{ entry.close }} <i class="fas fa-edit edit-icon"></i>
+              </td>
+              {% load humanize %}
+              <td contenteditable="true">
+                {{ entry.volume|intcomma }}
+                <i class="fas fa-edit edit-icon"></i>
+              </td>
+
+              <td>
+                <span><button class="save-btn">Save</button></span>
+                <span></span><button class="delete-btn">Delete</button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
 
-    <!-- Bootstrap JS, Popper.js, and jQuery -->
     <script>
-        
-
- // Add event listener for 'edit' icon
-document.querySelectorAll('.edit-icon').forEach(function(icon) {
-    icon.onclick = function() {
-        var cell = icon.parentElement;
-        cell.setAttribute('contenteditable', 'true');
-        cell.focus();
-    };
-});
-
-
-
-
-        document.addEventListener('DOMContentLoaded', function() {
-
-            document.querySelectorAll('.delete-btn').forEach(function(button) {
-        button.onclick = function() {
-            var row = button.parentElement.parentElement;
-            var id = row.getAttribute('data-id');
-
-            fetch('/delete-stock-data/' + id, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': getCookie('csrftoken')
-                }
-            }).then(response => response.json())
-              .then(data => {
-                  console.log('Success:', data);
-                  if (data.status === 'success') {
-                      row.remove();  
-                  }
-              }).catch((error) => {
-                  console.error('Error:', error);
-              });
+      document.querySelectorAll(".edit-icon").forEach(function (icon) {
+        icon.onclick = function () {
+          var cell = icon.parentElement;
+          cell.setAttribute("contenteditable", "true");
+          cell.focus();
         };
-    });
-            document.querySelectorAll('.save-btn').forEach(function(button) {
-                button.onclick = function() {
-                   
-                    var row = button.parentElement.parentElement;
-                    var id = row.getAttribute('data-id');
-                    var data = {
-                        'id': id,
-                        'date': row.cells[0].innerText.trim(),
-                        'trade_code': row.cells[1].innerText.trim(),
-                        'high': row.cells[2].innerText.trim(),
-                        'low': row.cells[3].innerText.trim(),
-                        'open': row.cells[4].innerText.trim(),
-                        'close': row.cells[5].innerText.trim(),  
-                        'volume': row.cells[6].innerText.trim()
-                        
-                    };
-    
-                    console.log("Data being sent: ", data);
+      });
 
-                    fetch('/update-stock-data/', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': getCookie('csrftoken') 
-                        },
-                        body: JSON.stringify(data)
-                    }).then(response => response.json())
-                      .then(data => {
-                          console.log('Success:', data);
-                      }).catch((error) => {
-                          console.error('Error:', error);
-                      });
-                };
+      function populateTradeCodes() {
+        fetch("/trade-codes/")
+          .then((response) => response.json())
+          .then((codes) => {
+            const selector = document.getElementById("tradeCodeSelector");
+            // Clear existing options
+            selector.innerHTML = "";
+
+            codes.forEach((code) => {
+              const option = document.createElement("option");
+              option.value = code;
+              option.textContent = code;
+              selector.appendChild(option);
             });
-        });
-    
-        // Function to get CSRF token from cookies
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
+
+            selector.addEventListener("change", () => {
+              updateChart(selector.value);
+            });
+          })
+          .catch((error) => {
+            console.error("Error loading trade codes:", error);
+          });
+      }
+
+      // Function to initialize the chart with the first trade code
+      function updateChartWithFirstTradeCode() {
+        fetch("/trade-codes/")
+          .then((response) => response.json())
+          .then((codes) => {
+            if (codes.length > 0) {
+              updateChart(codes[0]);
             }
-            return cookieValue;
+          })
+          .catch((error) => {
+            console.error("Error initializing chart:", error);
+          });
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        function refreshChartAndSelector() {
+          populateTradeCodes();
+          updateChartWithFirstTradeCode();
         }
-        
-        
-    // Function to update the chart
-    function updateChart(tradeCode) {
-    fetch(`/chart-data/${tradeCode}/`)
-        .then(response => response.json())
-        .then(data => {
-            const ctx = document.getElementById('myChart').getContext('2d');
-            
-            const labels = data.map(item => item.date);
-            const closeData = data.map(item => item.close);
-            const volumeData = data.map(item => item.volume);
+
+        // Function to re-attach event listeners after new content is loaded
+        function reattachEventListeners() {
+          document.querySelectorAll(".edit-icon").forEach(function (icon) {
+            icon.onclick = function () {
+              var cell = icon.parentElement;
+              cell.setAttribute("contenteditable", "true");
+              cell.focus();
+            };
+          });
+
+          // Reattach event listeners for save buttons
+          document.querySelectorAll(".save-btn").forEach(function (button) {
+            button.onclick = function () {
+              var row = this.closest("tr");
+              if (!row || !row.cells) {
+                console.error("Row or cells not found");
+                return;
+              }
+              var id = row.getAttribute("data-id");
+
+              var data = {
+                id: id,
+                date: row.cells[0].innerText.trim(),
+                trade_code: row.cells[1].innerText.trim(),
+                high: row.cells[2].innerText.trim(),
+                low: row.cells[3].innerText.trim(),
+                open: row.cells[4].innerText.trim(),
+                close: row.cells[5].innerText.trim(),
+                volume: row.cells[6].innerText.trim(),
+              };
+
+              fetch("/update-stock-data/", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "X-CSRFToken": getCookie("csrftoken"),
+                },
+                body: JSON.stringify(data),
+              })
+                .then((response) => response.json())
+                .then((data) => {
+                  console.log("Success:", data);
+                })
+                .catch((error) => {
+                  console.error("Error:", error);
+                });
+            };
+          });
+
+          // Reattach event listeners for delete buttons
+          document.querySelectorAll(".delete-btn").forEach(function (button) {
+            button.onclick = function () {
+              var row = button.parentElement.parentElement;
+              var id = row.getAttribute("data-id");
+
+              fetch("/delete-stock-data/" + id, {
+                method: "POST",
+                headers: {
+                  "X-CSRFToken": getCookie("csrftoken"),
+                },
+              })
+                .then((response) => response.json())
+                .then((data) => {
+                  console.log("Success:", data);
+                  if (data.status === "success") {
+                    row.remove();
+                  }
+                })
+                .catch((error) => {
+                  console.error("Error:", error);
+                });
+            };
+          });
+        }
+
+        // Attach event listener for pagination links
+        function handlePagination() {
+          var paginationContainer = document.querySelector(".container");
+          if (paginationContainer) {
+            paginationContainer.addEventListener("click", function (event) {
+              var target = event.target;
+              if (target.tagName === "A" && target.closest(".pagination")) {
+                console.log(
+                  "Pagination link clicked:",
+                  target.getAttribute("href")
+                ); // For debugging
+                event.preventDefault();
+                fetch(target.getAttribute("href"))
+                  .then((response) => response.text())
+                  .then((html) => {
+                    document.querySelector(".table-container").innerHTML = html;
+                    refreshChartAndSelector();
+                    reattachEventListeners();
+                  })
+                  .catch((error) => console.error("Error:", error));
+              }
+            });
+          } else {
+            console.error("Pagination container not found"); // For debugging
+          }
+        }
+
+        document.addEventListener("DOMContentLoaded", handlePagination);
+
+        // Initial function calls
+        refreshChartAndSelector();
+        reattachEventListeners();
+
+        document.querySelectorAll(".delete-btn").forEach(function (button) {
+          button.onclick = function () {
+            var row = button.parentElement.parentElement;
+            var id = row.getAttribute("data-id");
+
+            fetch("/delete-stock-data/" + id, {
+              method: "POST",
+              headers: {
+                "X-CSRFToken": getCookie("csrftoken"),
+              },
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                console.log("Success:", data);
+                if (data.status === "success") {
+                  row.remove();
+                }
+              })
+              .catch((error) => {
+                console.error("Error:", error);
+              });
+          };
+        });
+
+        document.querySelectorAll(".save-btn").forEach(function (button) {
+          button.onclick = function () {
+            var row = this.closest("tr");
+            if (!row || !row.cells) {
+              console.error("Row or cells not found");
+              return;
+            }
+            var id = row.getAttribute("data-id");
+
+            var data = {
+              id: id,
+              date: row.cells[0].innerText.trim(),
+              trade_code: row.cells[1].innerText.trim(),
+              high: row.cells[2].innerText.trim(),
+              low: row.cells[3].innerText.trim(),
+              open: row.cells[4].innerText.trim(),
+              close: row.cells[5].innerText.trim(),
+              volume: row.cells[6].innerText.trim(),
+            };
+
+            console.log("Data being sent: ", data);
+
+            fetch("/update-stock-data/", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCookie("csrftoken"),
+              },
+              body: JSON.stringify(data),
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                console.log("Success:", data);
+              })
+              .catch((error) => {
+                console.error("Error:", error);
+              });
+          };
+        });
+      });
+
+      // Function to get CSRF token from cookies
+      function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+          const cookies = document.cookie.split(";");
+          for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === name + "=") {
+              cookieValue = decodeURIComponent(
+                cookie.substring(name.length + 1)
+              );
+              break;
+            }
+          }
+        }
+        return cookieValue;
+      }
+      // Function to update the chart
+      function updateChart(tradeCode) {
+        fetch(`/chart-data/${tradeCode}/`)
+          .then((response) => response.json())
+          .then((data) => {
+            const ctx = document.getElementById("myChart").getContext("2d");
+
+            const labels = data.map((item) => item.date);
+            const closeData = data.map((item) => item.close);
+            const volumeData = data.map((item) => item.volume);
 
             if (window.myChart instanceof Chart) {
-                window.myChart.destroy();
+              window.myChart.destroy();
             }
 
             window.myChart = new Chart(ctx, {
-                type: 'bar', 
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Close',
-                        data: closeData,
-                        type: 'line',
-                        borderColor: 'rgb(54, 162, 130)',
-                        borderWidth: 2,
-                        fill: false,
-                        yAxisID: 'y-axis-close',
-                    }, {
-                        label: 'Volume',
-                        data: volumeData,
-                        backgroundColor: 'rgba(255, 99, 132, 0.5)',
-                        yAxisID: 'y-axis-volume',
-                    }]
+              type: "bar",
+              data: {
+                labels: labels,
+                datasets: [
+                  {
+                    label: "Close",
+                    data: closeData,
+                    type: "line",
+                    borderColor: "rgb(54, 162, 130)",
+                    borderWidth: 2,
+                    fill: false,
+                    yAxisID: "y-axis-close",
+                  },
+                  {
+                    label: "Volume",
+                    data: volumeData,
+                    backgroundColor: "rgba(255, 99, 132, 0.5)",
+                    yAxisID: "y-axis-volume",
+                  },
+                ],
+              },
+              options: {
+                scales: {
+                  "y-axis-close": {
+                    type: "linear",
+                    display: true,
+                    position: "left",
+                  },
+                  "y-axis-volume": {
+                    type: "linear",
+                    display: true,
+                    position: "right",
+                    grid: {
+                      drawOnChartArea: false,
+                    },
+                  },
                 },
-                options: {
-                    scales: {
-                        'y-axis-close': {
-                            type: 'linear',
-                            display: true,
-                            position: 'left',
-                        },
-                        'y-axis-volume': {
-                            type: 'linear',
-                            display: true,
-                            position: 'right',
-                            grid: {
-                                drawOnChartArea: false,
-                            },
-                        }
-                    }
-                }
+              },
             });
+          });
+      }
+
+      // Populate trade codes in the dropdown
+      fetch("/trade-codes/")
+        .then((response) => response.json())
+        .then((codes) => {
+          const selector = document.getElementById("tradeCodeSelector");
+          codes.forEach((code) => {
+            const option = document.createElement("option");
+            option.value = code;
+            option.textContent = code;
+            selector.appendChild(option);
+          });
+          selector.addEventListener("change", () => {
+            updateChart(selector.value);
+          });
+
+          if (codes.length > 0) {
+            updateChart(codes[0]);
+          }
         });
-}
-
-
-    // Populate trade codes in the dropdown
-    fetch('/trade-codes/')
-        .then(response => response.json())
-        .then(codes => {
-            const selector = document.getElementById('tradeCodeSelector');
-            codes.forEach(code => {
-                const option = document.createElement('option');
-                option.value = code;
-                option.textContent = code;
-                selector.appendChild(option);
-            });
-
-            // Update chart when the dropdown value changes
-            selector.addEventListener('change', () => {
-                updateChart(selector.value);
-            });
-
-            // Initialize chart with the first trade code
-            if (codes.length > 0) {
-                updateChart(codes[0]);
-            }
-        });
-
-
     </script>
-    
-    
-    
+
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-</body>
+  </body>
 </html>

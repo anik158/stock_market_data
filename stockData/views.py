@@ -28,7 +28,7 @@ def update_stock_data(request):
             stock_entry.high = data['high']
             stock_entry.low = data['low']
             stock_entry.open = data['open']
-            stock_entry.close = data['close']  # Assuming 'close' is a field
+            stock_entry.close = data['close']  
             stock_entry.volume = data['volume']
             stock_entry.save()
 
@@ -55,6 +55,30 @@ def stock_data_view(request):
     data = paginator.get_page(page_number)
     
     return render(request, 'stockData/stock_table.html', {'data': data})
+
+
+
+# def stock_data_view(request):
+#     data_list = SqlStockData.objects.all()
+#     paginator = Paginator(data_list, 200)  # Adjust the number per page as needed
+
+#     page_number = request.GET.get('page')
+#     data = paginator.get_page(page_number)
+
+#     # Check if it's an AJAX request
+#     if request.is_ajax():
+#         # Prepare data for JSON response
+#         entries = list(data.object_list.values('id', 'date', 'trade_code', 'high', 'low', 'open', 'close', 'volume'))
+#         response_data = {
+#             'entries': entries,
+#             'page': page_number,
+#             'num_pages': paginator.num_pages
+#         }
+#         return JsonResponse(response_data)
+
+#     # For a regular request, render the whole page
+#     return render(request, 'stockData/stock_table.html', {'data': data})
+
 
 # In your views.py
 
